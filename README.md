@@ -51,11 +51,11 @@ Steps to set up the project locally:
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/your-username/matsyamitra.git
+   https://github.com/JoelMathewJob/hack2skill.git
    ```
 2. Navigate to the project folder:
    ```sh
-   cd matsyamitra
+   cd hack2skill
    ```
 3. Install dependencies:
    ```sh
