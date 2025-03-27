@@ -29,21 +29,23 @@ export default function FishMovementPredictor({ weatherData }: FishMovementPredi
 
   // Generate predictions based on weather and time of day
   const getPredictions = () => {
+    const temperature = weatherData?.temperature ?? 0;  // Default to 0 if undefined
+    const conditions = weatherData?.conditions ?? "";  // Default to empty string
     const predictions = {
       morning: {
-        activity: weatherData?.temperature < 20 ? "High" : "Moderate",
-        depth: weatherData?.temperature < 20 ? "Shallow to mid-depth" : "Mid-depth",
-        location: weatherData?.conditions.includes("Rain") ? "Near structure and cover" : "Near shorelines and vegetation",
-        species: weatherData?.temperature < 20 ? ["Bass", "Trout", "Crappie"] : ["Bass", "Bluegill", "Catfish"],
+        activity: temperature < 20 ? "High" : "Moderate",
+        depth: temperature < 20 ? "Shallow to mid-depth" : "Mid-depth",
+        location: conditions.includes("Rain") ? "Near structure and cover" : "Near shorelines and vegetation",
+        species: temperature < 20 ? ["Bass", "Trout", "Crappie"] : ["Bass", "Bluegill", "Catfish"],
       },
       midday: {
-        activity: weatherData?.temperature > 25 ? "Low" : "Moderate",
-        depth: weatherData?.temperature > 25 ? "Deep water" : "Mid-depth",
-        location: weatherData?.conditions.includes("Sunny")
+        activity:temperature > 25 ? "Low" : "Moderate",
+        depth: temperature > 25 ? "Deep water" : "Mid-depth",
+        location: conditions.includes("Sunny")
           ? "Near deep structure and shade"
           : "Various depths around structure",
         species:
-          weatherData?.temperature > 25 ? ["Catfish", "Bass (deep)", "Crappie (deep)"] : ["Bass", "Bluegill", "Crappie"],
+          temperature > 25 ? ["Catfish", "Bass (deep)", "Crappie (deep)"] : ["Bass", "Bluegill", "Crappie"],
       },
       evening: {
         activity: "High",

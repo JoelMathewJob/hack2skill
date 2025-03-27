@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
@@ -9,8 +9,6 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "MatsyaMitra",
   description: "Your fishing companion app",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content",
-  themeColor: "#3b82f6",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -21,12 +19,24 @@ export const metadata: Metadata = {
     "apple-mobile-web-app-capable": "yes",
     "application-name": "MatsyaMitra",
     "apple-mobile-web-app-title": "MatsyaMitra",
-    "theme-color": "#3b82f6",
     "msapplication-navbutton-color": "#3b82f6",
     "apple-mobile-web-app-status-bar-style": "black-translucent",
     "msapplication-starturl": "/",
   }
 };
+
+// ✅ Move viewport configuration here
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: "no",
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content"
+};
+
+// ✅ Move themeColor separately
+export const themeColor = "#3b82f6";
 
 export default function RootLayout({
   children,

@@ -42,6 +42,12 @@ export default function MarketPrices({ marketData, isLoading = false }: MarketPr
   // Sort by price (lowest first)
   const sortedData = [...filteredData].sort((a, b) => a.price - b.price)
 
+  // Use a stable date format that will be consistent between server and client
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  }
+
   return (
     <div className="space-y-4">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -107,7 +113,7 @@ export default function MarketPrices({ marketData, isLoading = false }: MarketPr
           ) : (
             <>
               <h3 className="text-sm font-medium">Current Market Prices</h3>
-              <ScrollArea className="h-[300px]">
+              <ScrollArea className="h-[550px]">
                 <div className="space-y-2">
                   {sortedData.length === 0 ? (
                     <p className="text-center py-8 text-muted-foreground">
@@ -127,7 +133,7 @@ export default function MarketPrices({ marketData, isLoading = false }: MarketPr
                         <CardContent className="p-3 pt-2">
                           <div className="flex justify-between items-center text-sm">
                             <div className="text-muted-foreground">{item.marketName}</div>
-                            <div className="text-xs">{new Date(item.date).toLocaleDateString()}</div>
+                            <div className="text-xs">{formatDate(item.date)}</div>
                           </div>
                         </CardContent>
                       </Card>

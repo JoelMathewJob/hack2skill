@@ -88,7 +88,7 @@ export default function FishingApp() {
   const [locations, setLocations] = useState<Location[]>([])
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null)
   const [currentPosition, setCurrentPosition] = useState<[number, number] | null>(null)
-  const [weatherData, setWeatherData] = useState<WeatherData | null>(null)
+  const [weatherData, setWeatherData] = useState<WeatherData | null >(null)
   const [isEditing, setIsEditing] = useState(false)
   const [editName, setEditName] = useState("")
   const [editNotes, setEditNotes] = useState("")
@@ -277,107 +277,84 @@ export default function FishingApp() {
 
   // Get user's current location on component mount
   useEffect(() => {
-    if (navigator.geolocation) {
+    const fetchDataForLocation = (latitude: number, longitude: number) => {
+      fetchMockWeatherData(latitude, longitude);
+      fetchMockMaritimeBoundaries(latitude, longitude);
+      fetchMockFishLocations(latitude, longitude);
+      fetchMockMarketData();
+    };
+  
+    if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const newPosition: [number, number] = [position.coords.latitude, position.coords.longitude]
-          setCurrentPosition(newPosition)
-          lastReportedPositionRef.current = newPosition
-
-          // Fetch mock data based on position
-          fetchMockWeatherData(position.coords.latitude, position.coords.longitude)
-          fetchMockMaritimeBoundaries(position.coords.latitude, position.coords.longitude)
-          fetchMockFishLocations(position.coords.latitude, position.coords.longitude)
-          fetchMockMarketData()
+          const newPosition: [number, number] = [position.coords.latitude, position.coords.longitude];
+          setCurrentPosition(newPosition);
+          lastReportedPositionRef.current = newPosition;
+          fetchDataForLocation(newPosition[0], newPosition[1]);
         },
         (error) => {
-          // Improved error handling with more details
           console.error("Geolocation error:", {
-            code: error.code,
-            message: error.message,
-            details: JSON.stringify(error)
-          })
-          
-          // Default to a generic location if geolocation fails
-          const defaultPosition: [number, number] = [8.0883, 77.5385] // Coastal area in Tamil Nadu
-          setCurrentPosition(defaultPosition)
-          lastReportedPositionRef.current = defaultPosition
-
-          fetchMockWeatherData(defaultPosition[0], defaultPosition[1])
-          fetchMockMaritimeBoundaries(defaultPosition[0], defaultPosition[1])
-          fetchMockFishLocations(defaultPosition[0], defaultPosition[1])
-          fetchMockMarketData()
-
-          // Uncomment this if you have toast working
-          // toast({
-          //   title: "Location Error",
-          //   description: `Could not determine your location: ${error.message}. Using default position.`,
-          //   variant: "destructive",
-          // })
+            code: error?.code ?? "UNKNOWN",
+            message: error?.message ?? "No message available",
+            details: error ? JSON.stringify(error) : "Error object is undefined",
+          });
+  
+          alert("Could not determine location. Using default location (Tamil Nadu).");
+  
+          const defaultPosition: [number, number] = [8.0883, 77.5385]; // Coastal Tamil Nadu
+          setCurrentPosition(defaultPosition);
+          lastReportedPositionRef.current = defaultPosition;
+          fetchDataForLocation(defaultPosition[0], defaultPosition[1]);
         },
-        // Add options to improve geolocation success
         { 
-          enableHighAccuracy: false, // Set to false for better compatibility
-          maximumAge: 30000,        // Accept positions up to 30 seconds old
-          timeout: 15000            // Wait up to 15 seconds for a position
+          enableHighAccuracy: false, 
+          maximumAge: 30000, 
+          timeout: 15000,
         }
-      )
-
-      // Set up continuous tracking
+      );
+  
+      // Start tracking user's position
       watchIdRef.current = navigator.geolocation.watchPosition(
         (position) => {
-          const newPosition: [number, number] = [position.coords.latitude, position.coords.longitude]
-          setCurrentPosition(newPosition)
-
-          // Check for boundary crossings if enabled
+          const newPosition: [number, number] = [position.coords.latitude, position.coords.longitude];
+          setCurrentPosition(newPosition);
+  
+          // Check if boundary alerts are enabled before processing
           if (areBoundaryAlertsEnabled && lastReportedPositionRef.current && maritimeBoundaries.length > 0) {
-            checkBoundaryCrossings(newPosition)
+            checkBoundaryCrossings(newPosition);
           }
-
-          lastReportedPositionRef.current = newPosition
+  
+          lastReportedPositionRef.current = newPosition;
         },
-        (error) => {
-          console.error("Error tracking location:", error)
-        },
-        { enableHighAccuracy: true, maximumAge: 10000, timeout: 10000 },
-      )
+        (error) => console.error("Error tracking location:", error),
+        { enableHighAccuracy: true, maximumAge: 10000, timeout: 10000 }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+      alert("Geolocation is not supported by your browser.");
     }
-
+  
     // Load saved data from localStorage
-    const savedLocations = localStorage.getItem("fishingLocations")
-    if (savedLocations) {
-      setLocations(JSON.parse(savedLocations))
-    }
-
-    const savedRoutes = localStorage.getItem("fishingRoutes")
-    if (savedRoutes) {
-      setRoutes(JSON.parse(savedRoutes))
-    }
-
-    const savedCatchReports = localStorage.getItem("catchReports")
-    if (savedCatchReports) {
-      setCatchReports(JSON.parse(savedCatchReports))
-    }
-
-    const savedFuelReports = localStorage.getItem("fuelReports")
-    if (savedFuelReports) {
-      setFuelReports(JSON.parse(savedFuelReports))
-    }
-
-    const savedOfflineAreas = localStorage.getItem("offlineMapAreas")
-    if (savedOfflineAreas) {
-      setOfflineAreas(JSON.parse(savedOfflineAreas))
-    }
-
+    const loadSavedData = (key: string, setter: (value: any) => void) => {
+      const savedData = localStorage.getItem(key);
+      if (savedData) setter(JSON.parse(savedData));
+    };
+  
+    loadSavedData("fishingLocations", setLocations);
+    loadSavedData("fishingRoutes", setRoutes);
+    loadSavedData("catchReports", setCatchReports);
+    loadSavedData("fuelReports", setFuelReports);
+    loadSavedData("offlineMapAreas", setOfflineAreas);
+  
     return () => {
-      // Clean up location tracking
+      // Ensure location tracking cleanup
       if (watchIdRef.current !== null) {
-        navigator.geolocation.clearWatch(watchIdRef.current)
+        navigator.geolocation.clearWatch(watchIdRef.current);
+        watchIdRef.current = null;
       }
-    }
-  }, 
-  [areBoundaryAlertsEnabled]
-)
+    };
+  }, [areBoundaryAlertsEnabled]);
+  
 
   // Save data to localStorage whenever they change
   useEffect(() => {
@@ -1267,7 +1244,7 @@ export default function FishingApp() {
           )}
           
           {secondaryScreen === "market" && (
-            <MarketPrices />
+            <MarketPrices marketData={marketData} />
           )}
           
           {secondaryScreen === "sustainability" && (
@@ -1308,7 +1285,7 @@ export default function FishingApp() {
                             <div className="grid grid-cols-2 gap-4">
                               <div>
                                 <p className="text-sm font-medium">Location</p>
-                                <p className="text-sm text-muted-foreground">{report.location}</p>
+                                <p className="text-sm text-muted-foreground">{report.location.name}</p>
                               </div>
                               <div>
                                 <p className="text-sm font-medium">Weight</p>

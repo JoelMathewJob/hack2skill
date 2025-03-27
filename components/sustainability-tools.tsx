@@ -139,8 +139,8 @@ export default function SustainabilityTools({ sustainabilityScore = 75 }: Sustai
     <div className="space-y-4">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-4">
-          <TabsTrigger value="score">Your Score</TabsTrigger>
-          <TabsTrigger value="guide">Species Guide</TabsTrigger>
+          <TabsTrigger value="score">My Score</TabsTrigger>
+          <TabsTrigger value="guide"> Guide</TabsTrigger>
           <TabsTrigger value="alerts">Alerts</TabsTrigger>
           <TabsTrigger value="practices">Practices</TabsTrigger>
         </TabsList>
@@ -207,7 +207,7 @@ export default function SustainabilityTools({ sustainabilityScore = 75 }: Sustai
         <TabsContent value="guide" className="space-y-4 mt-4">
           <h3 className="text-sm font-medium">Species Identification Guide</h3>
 
-          <ScrollArea className="h-[350px]">
+          <ScrollArea className="h-[550px]">
             <div className="space-y-4">
               {fishSpecies.map((species) => (
                 <Card key={species.name}>

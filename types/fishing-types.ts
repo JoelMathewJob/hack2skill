@@ -15,6 +15,11 @@ export interface WeatherData {
   humidity: number
   pressure: number
   icon: string
+  waveHeight: number
+  wavePeriod: number
+  waterTemperature: number
+  salinity: number
+  tides: { time: string, height: number, type: string }[]
 }
 
 export interface Route {
@@ -42,6 +47,9 @@ export interface CatchReport {
   quantity: number
   weight?: number
   notes?: string
+  unit: number
+  weather:string
+  bait: string
 }
 
 export interface FuelReport {
