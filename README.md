@@ -55,7 +55,7 @@ Steps to set up the project locally:
    ```
 2. Navigate to the project folder:
    ```sh
-   cd matsya
+   cd hack2skill
    ```
 3. Install dependencies:
    ```sh
